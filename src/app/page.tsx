@@ -9,7 +9,7 @@ export default function Home() {
       </h1>
 
       <p className="mx-auto mt-6 max-w-xl text-base text-nl-fog sm:text-lg">
-        Your local travel advisory platform.
+        Your local travel advisory platform
       </p>
     </div>
   );

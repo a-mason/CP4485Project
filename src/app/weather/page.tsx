@@ -9,6 +9,7 @@ export default function Weather() {
   const [wind, setWind] = useState("");
   const [icon, setIcon] = useState("");
   const [feelsLike, setFeelsLike] = useState("");
+  const [isFahrenheit, setIsFahrenheit] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,28 +50,31 @@ export default function Weather() {
 
         <div className="relative w-full max-w-md animate-float-up overflow-hidden rounded-3xl border border-black/5 bg-white shadow-xl">
           <div className="tricolour-bar h-1.5 w-full" />
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-nl-pink-50 px-3 py-1 text-xs font-bold text-nl-pink-700">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-nl-pink-600" />
-                    Travel Status
-                  </span>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-nl-fog">
-                    St. John's, NL
-                  </span>
-                </div>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setIsFahrenheit(f => !f)}
+                className="inline-flex items-center gap-2 rounded-full border border-nl-pink-200 bg-nl-pink-50 px-2 py-1.5 text-xs font-bold text-nl-pink-700 transition hover:bg-nl-pink-100"
+              >
+                {isFahrenheit ? "Switch to Metric (°C)" : "Switch to Imperial (°F)"}
+              </button>
+              <span className="text-md font-semibold uppercase tracking-wider text-nl-fog">
+                St. John's, NL
+              </span>
+            </div>
 
                 {icon && (
                   <div className="mt-6 flex items-center justify-center gap-5">
                     <img
                       src={icon}
                       alt={condition}
-                      className="h-20 w-20 drop-shadow"
+                      className="h-17 w-20"
                     />
                     <div>
                       <h2 className="font-display text-5xl font-extrabold leading-none tracking-tight">
-                        {temp}
-                        <span className="align-top text-2xl text-nl-fog">°C</span>
+                        {isFahrenheit ? Math.round(parseInt(temp) * 9/5 + 32) : parseInt(temp)}
+                        <span className="align-top text-2xl text-nl-fog"> {isFahrenheit ? "°F" : "°C"}</span>
                       </h2>
                       <p className="mt-1 text-sm font-medium text-nl-fog">
                         {condition}
@@ -83,7 +87,7 @@ export default function Weather() {
                   <div className="mt-6 rounded-2xl bg-gradient-to-r from-nl-green-50 to-nl-pink-50 p-3.5 text-center text-sm text-nl-ink/80">
                     Feels like{" "}
                     <span className="font-extrabold text-nl-green-700">
-                      {feelsLike}°C
+                      {isFahrenheit ? Math.round(parseInt(feelsLike) * 9/5 + 32) : parseInt(feelsLike)}°{isFahrenheit ? "F" : "C"}
                     </span>{" "}
                   </div>
                 )}
@@ -102,11 +106,11 @@ export default function Weather() {
                       Wind Speed
                     </span>
                     <span className="text-lg font-extrabold text-nl-ink">
-                      {wind} km/h
+                      {isFahrenheit ? Math.round(parseFloat(wind) * 0.621) : parseInt(wind)} {isFahrenheit ? "mph" : "km/h"}
                     </span>
                   </div>
                 </div>
-              </>
+              </div>
           </div>
         </div>
       </div>
