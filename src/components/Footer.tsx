@@ -17,7 +17,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col items-center gap-2 border-t border-black/5 pt-6 text-xs text-nl-fog sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} St. John&apos;s Travel Advisory · Newfoundland &amp; Labrador</p>
-          <p>Weather data courtesy of Environment Canada.</p>
+          <p>Weather data courtesy of Environment Canada</p>
         </div>
       </div>
     </footer>
