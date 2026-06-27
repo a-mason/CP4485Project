@@ -14,7 +14,7 @@ export default function Weather() {
 
   useEffect(() => {
     fetch(
-      "https://api.weather.gc.ca/collections/citypageweather-realtime/items/nl-24"
+      "/api/weather"
     )
       .then((response) => response.json())
       .then((data) => {

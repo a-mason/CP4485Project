@@ -1,6 +1,8 @@
 "use client";
-
 import { useState } from "react";
+
+import Gallery from "@/components/Gallery";
+import Checklist from "@/components/Checklist";
 
 const gallery = [
   { src: "/images/jellybean-row.svg", title: "Jellybean Row" },
@@ -31,13 +33,7 @@ export default function Plan() {
         <h2 className="font-display text-2xl font-extrabold">Where to wander</h2>
         <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {gallery.map((g) => (
-            <figure
-              key={g.title}
-              className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm"
-            >
-              <img src={g.src} alt={g.title} className="aspect-[8/5] w-full object-cover" />
-              <figcaption className="p-4 font-semibold">{g.title}</figcaption>
-            </figure>
+            <Gallery key={g.title} src={g.src} title={g.title} />
           ))}
         </div>
       </section>
