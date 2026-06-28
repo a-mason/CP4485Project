@@ -6,6 +6,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg, EventInput } from "@fullcalendar/core";
 import type { TravelEvent } from "./types";
+import Card from "@/components/Card";
+import TricolourBar from "@/components/TricolourBar";
 
 const fcTheme = {
   "--fc-border-color": "rgba(0,0,0,0.06)",
@@ -71,11 +73,8 @@ export default function EventsCalendar() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
-      <div
-        className="overflow-hidden rounded-2xl border border-black/5 bg-white p-4 shadow-sm sm:p-5"
-        style={fcTheme}
-      >
-        <div className="tricolour-bar mb-4 h-1.5 w-full rounded-full" />
+      <Card className="overflow-hidden p-4 sm:p-5" style={fcTheme}>
+        <TricolourBar className="mb-4 h-1.5 w-full rounded-full" />
         {mounted ? (
           <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin]}
@@ -96,7 +95,7 @@ export default function EventsCalendar() {
             Loading calendar…
           </p>
         )}
-      </div>
+      </Card>
 
       <aside>
         <h3 className="font-display text-lg font-extrabold">
@@ -112,7 +111,7 @@ export default function EventsCalendar() {
         )}
 
         {selected && (
-          <div className="mt-4 rounded-xl border border-black/5 bg-white p-4 shadow-sm">
+          <Card className="mt-4 p-4">
             <div className="flex items-start justify-between gap-2">
               <span className="shrink-0 rounded-full bg-nl-green-50 px-2 py-0.5 text-[0.65rem] font-bold text-nl-green-700">
                 {selected.category}
@@ -154,7 +153,7 @@ export default function EventsCalendar() {
                 Added by {selected.submittedBy}
               </p>
             )}
-          </div>
+          </Card>
         )}
       </aside>
     </div>

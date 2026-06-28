@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { EVENT_CATEGORIES } from "../types";
+import Field, { fieldInputClass } from "@/components/Field";
+import Button from "@/components/Button";
+import Card from "@/components/Card";
 
 export const metadata = {
   title: "Add an Event · St. John's Travel Advisory",
@@ -24,117 +27,67 @@ export default function AddEventPage() {
         calendar once you submit.
       </p>
 
-      <form
-        action="/api/events"
-        method="POST"
-        className="mt-10 space-y-5 rounded-2xl border border-black/5 bg-white p-6 shadow-sm"
-      >
-        <label className="block">
-          <span className="text-sm font-semibold">Event name</span>
-          <input
-            type="text"
+      <Card className="mt-10 p-6">
+        <form action="/api/events" method="POST" className="space-y-5">
+          <Field
+            label="Event name"
             name="title"
             required
             placeholder="George Street Festival"
-            className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
           />
-        </label>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <label className="block">
-            <span className="text-sm font-semibold">Date</span>
-            <input
-              type="date"
-              name="date"
-              required
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <Field label="Date" name="date" type="date" required />
+            <Field label="Start time" name="startTime" type="time" />
+            <Field label="End time" name="endTime" type="time" />
+          </div>
 
-          <label className="block">
-            <span className="text-sm font-semibold">Start time</span>
-            <input
-              type="time"
-              name="startTime"
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Field label="Category">
+              <select
+                name="category"
+                defaultValue="Music"
+                className={fieldInputClass}
+              >
+                {EVENT_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </Field>
 
-          <label className="block">
-            <span className="text-sm font-semibold">End time</span>
-            <input
-              type="time"
-              name="endTime"
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-            />
-          </label>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-semibold">Category</span>
-            <select
-              name="category"
-              defaultValue="Music"
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-            >
-              {EVENT_CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold">Location</span>
-            <input
-              type="text"
+            <Field
+              label="Location"
               name="location"
               placeholder="George Street, St. John's"
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
             />
-          </label>
-        </div>
+          </div>
 
-        <label className="block">
-          <span className="text-sm font-semibold">Details</span>
-          <textarea
-            name="description"
-            rows={3}
-            placeholder="What's happening, what to expect, cost..."
-            className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-          />
-        </label>
+          <Field label="Details">
+            <textarea
+              name="description"
+              rows={3}
+              placeholder="What's happening, what to expect, cost..."
+              className={fieldInputClass}
+            />
+          </Field>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-semibold">Link (optional)</span>
-            <input
-              type="url"
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Field
+              label="Link (optional)"
               name="url"
+              type="url"
               placeholder="https://..."
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
             />
-          </label>
+            <Field label="Your name (optional)" name="submittedBy" />
+          </div>
 
-          <label className="block">
-            <span className="text-sm font-semibold">Your name (optional)</span>
-            <input
-              type="text"
-              name="submittedBy"
-              className="mt-1 w-full rounded-lg border border-black/10 bg-nl-cream px-3 py-2 text-sm outline-none focus:border-nl-green"
-            />
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full rounded-full bg-nl-green px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-nl-green-700"
-        >
-          Add event
-        </button>
-      </form>
+          <Button type="submit" fullWidth>
+            Add event
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

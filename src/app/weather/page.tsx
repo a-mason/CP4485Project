@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import TricolourBar from "@/components/TricolourBar";
 
 export default function Weather() {
   const [cityName, setCityName] = useState("");
@@ -49,7 +50,7 @@ export default function Weather() {
         </div>
 
         <div className="relative w-full max-w-md animate-float-up overflow-hidden rounded-3xl border border-black/5 bg-white shadow-xl">
-          <div className="tricolour-bar h-1.5 w-full" />
+          <TricolourBar className="h-1.5 w-full" />
           <div className="p-6">
             <div className="flex items-center justify-between">
               <button

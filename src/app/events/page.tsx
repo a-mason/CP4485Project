@@ -1,5 +1,5 @@
-import Link from "next/link";
 import EventsCalendar from "./EventsCalendar";
+import Button from "@/components/Button";
 
 export const metadata = {
   title: "Events · St. John's Travel Advisory",
@@ -14,12 +14,7 @@ export default function EventsPage() {
           <span className="text-tricolour">Event Calendar</span>
         </h1>
 
-        <Link
-          href="/events/add"
-          className="rounded-full bg-nl-green px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-nl-green-700"
-        >
-          + Add event
-        </Link>
+        <Button href="/events/add">+ Add event</Button>
       </div>
 
       <div className="mt-10">
