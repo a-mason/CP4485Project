@@ -1,11 +1,11 @@
-import Link from "next/link";
+import TricolourBar from "@/components/TricolourBar";
 
 
 
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-black/5 bg-white">
-      <div className="tricolour-bar h-1 w-full" />
+      <TricolourBar />
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
           <div>

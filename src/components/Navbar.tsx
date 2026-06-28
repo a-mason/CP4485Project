@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import TricolourBar from "@/components/TricolourBar";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/weather", label: "Weather" },
   { href: "/events", label: "Events" },
-  { href: "/plan", label: "Plan" },
 ];
 
 export default function Navbar() {
@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="tricolour-bar h-1 w-full" />
+      <TricolourBar />
 
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-extrabold">
