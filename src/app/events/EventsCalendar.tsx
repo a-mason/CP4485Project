@@ -8,6 +8,7 @@ import type { EventClickArg, EventInput } from "@fullcalendar/core";
 import type { TravelEvent } from "./types";
 import Card from "@/components/Card";
 import TricolourBar from "@/components/TricolourBar";
+import Button from "@/components/Button";
 
 const fcTheme = {
   "--fc-border-color": "rgba(0,0,0,0.06)",
@@ -153,6 +154,10 @@ export default function EventsCalendar() {
                 Added by {selected.submittedBy}
               </p>
             )}
+
+            <div className="mt-4 flex gap-2">
+              <Button href={`/events/${selected._id}/edit`}>Edit</Button>
+            </div>
           </Card>
         )}
       </aside>
