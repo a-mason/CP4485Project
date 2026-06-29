@@ -1,5 +1,6 @@
 import { connectToDB } from "@/app/api/db";
 import { revalidatePath } from "next/cache";
+import { validateEventInput } from "@/app/events/validateEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -32,17 +33,30 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { db } = await connectToDB();
   const formData = await request.formData();
+
+  const date = formData.get("date") as string;
+  const startTime = formData.get("startTime") as string;
+  const endTime = formData.get("endTime") as string;
+
+  const error = validateEventInput({ date, startTime, endTime });
+  if (error) {
+    return Response.redirect(
+      new URL(`/events/add?error=${encodeURIComponent(error)}`, request.url),
+      303
+    );
+  }
+
+  const { db } = await connectToDB();
 
   await db.collection("events").insertOne({
     title: formData.get("title"),
     description: formData.get("description"),
     category: formData.get("category"),
     location: formData.get("location"),
-    date: formData.get("date"),
-    startTime: formData.get("startTime"),
-    endTime: formData.get("endTime"),
+    date,
+    startTime,
+    endTime,
     url: formData.get("url"),
     submittedBy: formData.get("submittedBy"),
     createdAt: new Date(),

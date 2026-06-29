@@ -3,10 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ObjectId } from "mongodb";
 import { connectToDB } from "@/app/api/db";
-import { EVENT_CATEGORIES } from "../../types";
-import Field, { fieldInputClass } from "@/components/Field";
-import Button from "@/components/Button";
+import { validateEventInput } from "../../validateEvent";
 import Card from "@/components/Card";
+import EventForm from "../../EventForm";
 
 export const metadata = {
   title: "Edit Event · St. John's Travel Advisory",
@@ -15,10 +14,13 @@ export const metadata = {
 
 export default async function EditEventPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
 
   if (!ObjectId.isValid(id)) {
     notFound();
@@ -35,6 +37,15 @@ export default async function EditEventPage({
     "use server";
 
     const eventId = formData.get("id") as string;
+    const date = formData.get("date") as string;
+    const startTime = formData.get("startTime") as string;
+    const endTime = formData.get("endTime") as string;
+
+    const validationError = validateEventInput({ date, startTime, endTime });
+    if (validationError) {
+      redirect(`/events/${eventId}/edit?error=${encodeURIComponent(validationError)}`);
+    }
+
     const { db } = await connectToDB();
 
     await db.collection("events").updateOne(
@@ -45,9 +56,9 @@ export default async function EditEventPage({
           description: formData.get("description"),
           category: formData.get("category"),
           location: formData.get("location"),
-          date: formData.get("date"),
-          startTime: formData.get("startTime"),
-          endTime: formData.get("endTime"),
+          date,
+          startTime,
+          endTime,
           url: formData.get("url"),
           submittedBy: formData.get("submittedBy"),
         },
@@ -75,71 +86,23 @@ export default async function EditEventPage({
       </p>
 
       <Card className="mt-10 p-6">
-        <form action={updateEvent} className="space-y-5">
-          <input type="hidden" name="id" value={id} />
-
-          <Field
-            label="Event name"
-            name="title"
-            required
-            defaultValue={event.title ?? ""}
-            placeholder="George Street Festival"
-          />
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <Field label="Date" name="date" type="date" required defaultValue={event.date ?? ""} />
-            <Field label="Start time" name="startTime" type="time" defaultValue={event.startTime ?? ""} />
-            <Field label="End time" name="endTime" type="time" defaultValue={event.endTime ?? ""} />
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Field label="Category">
-              <select
-                name="category"
-                defaultValue={event.category ?? "Music"}
-                className={fieldInputClass}
-              >
-                {EVENT_CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <Field
-              label="Location"
-              name="location"
-              defaultValue={event.location ?? ""}
-              placeholder="George Street, St. John's"
-            />
-          </div>
-
-          <Field label="Details">
-            <textarea
-              name="description"
-              rows={3}
-              defaultValue={event.description ?? ""}
-              placeholder="What's happening, what to expect, cost..."
-              className={fieldInputClass}
-            />
-          </Field>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Field
-              label="Link (optional)"
-              name="url"
-              type="url"
-              defaultValue={event.url ?? ""}
-              placeholder="https://..."
-            />
-            <Field label="Your name (optional)" name="submittedBy" defaultValue={event.submittedBy ?? ""} />
-          </div>
-
-          <Button type="submit" fullWidth>
-            Save changes
-          </Button>
-        </form>
+        <EventForm
+          action={updateEvent}
+          hiddenId={id}
+          submitLabel="Save changes"
+          error={error}
+          defaultValues={{
+            title: event.title ?? "",
+            description: event.description ?? "",
+            category: event.category ?? "Music",
+            location: event.location ?? "",
+            date: event.date ?? "",
+            startTime: event.startTime ?? "",
+            endTime: event.endTime ?? "",
+            url: event.url ?? "",
+            submittedBy: event.submittedBy ?? "",
+          }}
+        />
       </Card>
     </div>
   );

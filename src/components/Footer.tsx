@@ -1,7 +1,5 @@
 import TricolourBar from "@/components/TricolourBar";
 
-
-
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-black/5 bg-white">
