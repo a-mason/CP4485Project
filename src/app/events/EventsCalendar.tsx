@@ -38,6 +38,7 @@ export default function EventsCalendar() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<TravelEvent | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -70,6 +71,25 @@ export default function EventsCalendar() {
   function handleEventClick(info: EventClickArg) {
     info.jsEvent.preventDefault();
     setSelected(info.event.extendedProps as TravelEvent);
+  }
+
+  async function handleDelete() {
+    if (!selected) return;
+    if (!confirm(`Delete "${selected.title}"?`)) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/events/${selected._id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete event");
+      setSelected(null);
+      loadEvents();
+    } catch (err) {
+      console.error("Failed to delete event:", err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -157,6 +177,9 @@ export default function EventsCalendar() {
 
             <div className="mt-4 flex gap-2">
               <Button href={`/events/${selected._id}/edit`}>Edit</Button>
+              <Button variant="danger" onClick={handleDelete} disabled={deleting}>
+                {deleting ? "Deleting…" : "Delete"}
+              </Button>
             </div>
           </Card>
         )}
