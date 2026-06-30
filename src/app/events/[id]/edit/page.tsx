@@ -42,6 +42,8 @@ export default async function EditEventPage({
     const endDate = formData.get("endDate") as string;
     const startTime = formData.get("startTime") as string;
     const endTime = formData.get("endTime") as string;
+    const location = formData.get("location") as string;
+    const description = formData.get("description") as string;
 
     const validationError = validateEventInput({
       title,
@@ -49,6 +51,8 @@ export default async function EditEventPage({
       endDate,
       startTime,
       endTime,
+      location,
+      description,
     });
     if (validationError) {
       redirect(`/events/${eventId}/edit?error=${encodeURIComponent(validationError)}`);

@@ -41,8 +41,18 @@ export async function POST(request: Request) {
   const endDate = formData.get("endDate") as string;
   const startTime = formData.get("startTime") as string;
   const endTime = formData.get("endTime") as string;
+  const location = formData.get("location") as string;
+  const description = formData.get("description") as string;
 
-  const error = validateEventInput({ title, date, endDate, startTime, endTime });
+  const error = validateEventInput({
+    title,
+    date,
+    endDate,
+    startTime,
+    endTime,
+    location,
+    description,
+  });
   if (error) {
     return Response.redirect(
       new URL(`/events/add?error=${encodeURIComponent(error)}`, request.url),

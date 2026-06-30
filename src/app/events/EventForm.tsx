@@ -48,6 +48,8 @@ export default function EventForm({
       endDate: (formData.get("endDate") as string) ?? "",
       startTime: (formData.get("startTime") as string) ?? "",
       endTime: (formData.get("endTime") as string) ?? "",
+      location: (formData.get("location") as string) ?? "",
+      description: (formData.get("description") as string) ?? "",
     });
 
     if (validationError) {
@@ -104,6 +106,7 @@ export default function EventForm({
           label="Start time"
           name="startTime"
           type="time"
+          required
           defaultValue={defaultValues.startTime}
         />
         <Field
@@ -132,6 +135,7 @@ export default function EventForm({
         <Field
           label="Location"
           name="location"
+          required
           defaultValue={defaultValues.location}
           placeholder="George Street, St. John's"
         />
@@ -141,6 +145,7 @@ export default function EventForm({
         <textarea
           name="description"
           rows={3}
+          required
           defaultValue={defaultValues.description}
           placeholder="What's happening, what to expect, cost..."
           className={fieldInputClass}
