@@ -5,18 +5,28 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { TravelEvent } from "./events/types";
 import Card from "@/components/Card";
+import MiniCalendar from "@/components/MiniCalendar";
 
 type Condition = "sunny" | "cloudy" | "rainy" | "snowy" | "windy" | "foggy";
 
 type City = {
   name: string;
   region: string;
+  lon: number | null;
+  lat: number | null;
   temp: number | null;
   feelsLike: number | null;
   label: string;
   wind: number | null;
   humidity: number | null;
   visibility: number | null;
+};
+
+type ForecastDay = {
+  date: string;
+  high: number;
+  low: number;
+  code: number;
 };
 
 const CONDITION_ICON: Record<Condition, string> = {
@@ -35,6 +45,14 @@ function conditionFromLabel(label: string): Condition {
   if (text.includes("snow") || text.includes("flurr")) return "snowy";
   if (text.includes("wind") || text.includes("breez")) return "windy";
   if (text.includes("sun") || text.includes("clear")) return "sunny";
+  return "cloudy";
+}
+
+function conditionFromCode(code: number): Condition {
+  if (code === 0 || code === 1) return "sunny";
+  if (code === 45 || code === 48) return "foggy";
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "snowy";
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95) return "rainy";
   return "cloudy";
 }
 
@@ -65,6 +83,7 @@ function WeatherStat({ label, value }: { label: string; value: string }) {
 export default function Home() {
   const [cities, setCities] = useState<City[]>([]);
   const [selectedName, setSelectedName] = useState("St. John's");
+  const [forecast, setForecast] = useState<ForecastDay[]>([]);
   const [events, setEvents] = useState<TravelEvent[]>([]);
 
   useEffect(() => {
@@ -81,6 +100,19 @@ export default function Home() {
 
   const selected =
     cities.find((city) => city.name === selectedName) ?? cities[0] ?? null;
+
+  const selectedLat = selected ? selected.lat : null;
+  const selectedLon = selected ? selected.lon : null;
+
+  useEffect(() => {
+    if (selectedLat === null || selectedLon === null) {
+      return;
+    }
+    fetch(`/api/weather/forecast?lat=${selectedLat}&lon=${selectedLon}`)
+      .then((res) => res.json())
+      .then((data: ForecastDay[]) => setForecast(data))
+      .catch((err) => console.error("Failed to load forecast:", err));
+  }, [selectedLat, selectedLon]);
 
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = events
@@ -191,6 +223,34 @@ export default function Home() {
             })}
           </div>
 
+          {forecast.length > 0 && (
+            <div className="mt-10">
+              <SectionHeading>
+                7-Day Forecast — {selected ? selected.name : ""}
+              </SectionHeading>
+              <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7">
+                {forecast.map((day) => {
+                  const date = new Date(`${day.date}T00:00:00`);
+                  return (
+                    <Card
+                      key={day.date}
+                      className="flex flex-col items-center gap-2 p-3 text-center"
+                    >
+                      <span className="text-[0.65rem] font-bold uppercase tracking-wider text-nl-fog">
+                        {date.toLocaleDateString("en-CA", { weekday: "short" })}
+                      </span>
+                      <span className="text-xl">
+                        {CONDITION_ICON[conditionFromCode(day.code)]}
+                      </span>
+                      <span className="text-sm font-bold">{day.high}°</span>
+                      <span className="text-xs text-nl-fog">{day.low}°</span>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <Link
             href="/weather"
             className="mt-6 inline-block text-sm font-bold text-nl-green-700 hover:underline"
@@ -199,45 +259,53 @@ export default function Home() {
           </Link>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between">
-            <SectionHeading>Upcoming Events</SectionHeading>
-            <Link
-              href="/events"
-              className="text-xs font-bold text-nl-green-700 hover:underline"
-            >
-              Calendar →
-            </Link>
+        <div className="space-y-8">
+          <div>
+            <div className="flex items-center justify-between">
+              <SectionHeading>Events Calendar</SectionHeading>
+              <Link
+                href="/events"
+                className="text-xs font-bold text-nl-green-700 hover:underline"
+              >
+                Full calendar →
+              </Link>
+            </div>
+            <div className="mt-5">
+              <MiniCalendar events={events} />
+            </div>
           </div>
 
-          <ul className="mt-5 space-y-3">
-            {upcoming.length === 0 && (
-              <li className="text-sm text-nl-fog">No upcoming events yet.</li>
-            )}
-            {upcoming.map((event) => {
-              const day = new Date(`${event.date}T00:00:00`);
-              return (
-                <li key={event._id}>
-                  <Card className="flex items-center gap-3 p-3">
-                    <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-nl-green-50 text-nl-green-700">
-                      <span className="text-[0.6rem] font-bold uppercase">
-                        {day.toLocaleDateString("en-CA", { month: "short" })}
-                      </span>
-                      <span className="text-lg font-extrabold leading-none">
-                        {day.getDate()}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold">{event.title}</p>
-                      <p className="truncate text-xs text-nl-fog">
-                        {event.location}
-                      </p>
-                    </div>
-                  </Card>
-                </li>
-              );
-            })}
-          </ul>
+          <div>
+            <SectionHeading>Upcoming Events</SectionHeading>
+            <ul className="mt-5 space-y-3">
+              {upcoming.length === 0 && (
+                <li className="text-sm text-nl-fog">No upcoming events yet.</li>
+              )}
+              {upcoming.map((event) => {
+                const day = new Date(`${event.date}T00:00:00`);
+                return (
+                  <li key={event._id}>
+                    <Card className="flex items-center gap-3 p-3">
+                      <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-nl-green-50 text-nl-green-700">
+                        <span className="text-[0.6rem] font-bold uppercase">
+                          {day.toLocaleDateString("en-CA", { month: "short" })}
+                        </span>
+                        <span className="text-lg font-extrabold leading-none">
+                          {day.getDate()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{event.title}</p>
+                        <p className="truncate text-xs text-nl-fog">
+                          {event.location}
+                        </p>
+                      </div>
+                    </Card>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

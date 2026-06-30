@@ -36,7 +36,13 @@ type CurrentConditions = {
   windChill?: { value?: { en?: string } };
 };
 
-function parseCity(name: string, region: unknown, cc: CurrentConditions) {
+function parseCity(
+  name: string,
+  region: unknown,
+  lon: number | null,
+  lat: number | null,
+  cc: CurrentConditions
+) {
   const temp = toNumber(cc?.temperature?.value?.en);
   const humidex = toNumber(cc?.humidex?.value?.en);
   const windChill = toNumber(cc?.windChill?.value?.en);
@@ -54,6 +60,8 @@ function parseCity(name: string, region: unknown, cc: CurrentConditions) {
   return {
     name,
     region: regionText(region),
+    lon,
+    lat,
     temp,
     feelsLike,
     label: cc?.condition?.en ? cc.condition.en : "",
@@ -72,7 +80,14 @@ export async function GET() {
       );
       const data = await res.json();
       const props = data.properties;
-      return parseCity(site.name, props.region, props.currentConditions);
+      const coordinates = data.geometry ? data.geometry.coordinates : [null, null];
+      return parseCity(
+        site.name,
+        props.region,
+        coordinates[0],
+        coordinates[1],
+        props.currentConditions
+      );
     })
   );
 
