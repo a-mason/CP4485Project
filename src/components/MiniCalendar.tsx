@@ -42,7 +42,7 @@ export default function MiniCalendar({ events }: { events: TravelEvent[] }) {
   for (let day = 1; day <= daysInMonth; day++) {
     cells.push(day);
   }
-  while (cells.length < 42) {
+  while (cells.length % 7 !== 0) {
     cells.push(null);
   }
 
@@ -51,7 +51,7 @@ export default function MiniCalendar({ events }: { events: TravelEvent[] }) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="font-display text-lg font-extrabold">
           {MONTHS[month]} {year}
@@ -82,7 +82,7 @@ export default function MiniCalendar({ events }: { events: TravelEvent[] }) {
         ))}
       </div>
 
-      <div className="mt-1 grid flex-1 grid-cols-7 grid-rows-6 gap-1">
+      <div className="mt-1 grid grid-cols-7 gap-1">
         {cells.map((day, index) => {
           if (day === null) {
             return <div key={index} />;
@@ -93,7 +93,7 @@ export default function MiniCalendar({ events }: { events: TravelEvent[] }) {
           return (
             <div
               key={index}
-              className={`flex flex-col items-center justify-center rounded-lg text-sm ${
+              className={`flex aspect-square flex-col items-center justify-center rounded-lg text-sm ${
                 isToday ? "bg-nl-green font-bold text-white" : "text-nl-ink"
               }`}
             >

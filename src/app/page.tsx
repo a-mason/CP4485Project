@@ -71,7 +71,7 @@ function SectionHeading({ children }: { children: ReactNode }) {
 
 function WeatherStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-lg bg-white/70 px-3 py-3 ring-1 ring-black/5">
+    <div className="flex flex-col items-center gap-1 rounded-lg bg-white/70 px-3 py-2 ring-1 ring-black/5">
       <span className="font-mono text-sm font-medium text-nl-ink">{value}</span>
       <span className="text-[0.65rem] uppercase tracking-wider text-nl-fog">
         {label}
@@ -115,29 +115,29 @@ export default function Home() {
   const upcoming = events
     .filter((event) => event.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 6);
+    .slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="space-y-10 lg:col-span-2">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <section>
             <SectionHeading>Current Conditions</SectionHeading>
 
-            <div className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green-100 via-white to-nl-pink-100 shadow-sm ring-1 ring-black/5">
-              <div className="flex flex-col gap-8 p-8 sm:flex-row sm:items-center">
+            <div className="mt-3 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green-100 via-white to-nl-pink-100 shadow-sm ring-1 ring-black/5">
+              <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
                 <div className="flex-1">
                   <p className="text-xs font-semibold uppercase tracking-widest text-nl-green-700">
                     {city ? city.region : "Loading…"}
                   </p>
-                  <h3 className="mt-1 font-display text-4xl font-extrabold text-nl-ink">
+                  <h3 className="mt-1 font-display text-3xl font-extrabold text-nl-ink">
                     {city ? city.name : "St. John's"}
                   </h3>
-                  <div className="mt-3 flex items-end gap-4">
-                    <span className="font-display text-7xl font-extrabold leading-none text-nl-green-900">
+                  <div className="mt-2 flex items-end gap-4">
+                    <span className="font-display text-6xl font-extrabold leading-none text-nl-green-900">
                       {city ? show(city.temp, "°") : "--°"}
                     </span>
-                    <div className="pb-2">
+                    <div className="pb-1">
                       <p className="text-lg font-semibold text-nl-pink-700">
                         {city
                           ? `${CONDITION_ICON[conditionFromLabel(city.label)]} ${city.label}`
@@ -152,7 +152,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <WeatherStat
                     label="Wind"
                     value={city ? show(city.wind, " km/h") : "--"}
@@ -174,18 +174,18 @@ export default function Home() {
           {forecast.length > 0 && (
             <section>
               <SectionHeading>7-Day Forecast — St. John&apos;s</SectionHeading>
-              <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7">
+              <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {forecast.map((day) => {
                   const date = new Date(`${day.date}T00:00:00`);
                   return (
                     <Card
                       key={day.date}
-                      className="flex flex-col items-center gap-2 p-3 text-center"
+                      className="flex flex-col items-center gap-1 p-2 text-center"
                     >
                       <span className="text-[0.65rem] font-bold uppercase tracking-wider text-nl-fog">
                         {date.toLocaleDateString("en-CA", { weekday: "short" })}
                       </span>
-                      <span className="text-xl">
+                      <span className="text-lg">
                         {CONDITION_ICON[conditionFromCode(day.code)]}
                       </span>
                       <span className="text-sm font-bold">{day.high}°</span>
@@ -205,53 +205,57 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="flex flex-col">
-          <div className="flex items-center justify-between">
-            <SectionHeading>Events Calendar</SectionHeading>
-            <Link
-              href="/events"
-              className="text-xs font-bold text-nl-green-700 hover:underline"
-            >
-              Full calendar →
-            </Link>
-          </div>
-          <div className="mt-5 min-h-[20rem] flex-1">
-            <MiniCalendar events={events} />
-          </div>
+        <div className="space-y-6">
+          <section>
+            <div className="flex items-center justify-between">
+              <SectionHeading>Events Calendar</SectionHeading>
+              <Link
+                href="/events"
+                className="text-xs font-bold text-nl-green-700 hover:underline"
+              >
+                Full calendar →
+              </Link>
+            </div>
+            <div className="mt-3">
+              <MiniCalendar events={events} />
+            </div>
+          </section>
+
+          <section>
+            <SectionHeading>Upcoming Events</SectionHeading>
+            <ul className="mt-3 space-y-2">
+              {upcoming.length === 0 && (
+                <li className="text-sm text-nl-fog">No upcoming events yet.</li>
+              )}
+              {upcoming.map((event) => {
+                const day = new Date(`${event.date}T00:00:00`);
+                return (
+                  <li key={event._id}>
+                    <Card className="flex items-center gap-3 p-3">
+                      <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-nl-green-50 text-nl-green-700">
+                        <span className="text-[0.55rem] font-bold uppercase">
+                          {day.toLocaleDateString("en-CA", { month: "short" })}
+                        </span>
+                        <span className="text-base font-extrabold leading-none">
+                          {day.getDate()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">
+                          {event.title}
+                        </p>
+                        <p className="truncate text-xs text-nl-fog">
+                          {event.location}
+                        </p>
+                      </div>
+                    </Card>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         </div>
       </div>
-
-      <section className="mt-12">
-        <SectionHeading>Upcoming Events</SectionHeading>
-        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {upcoming.length === 0 && (
-            <li className="text-sm text-nl-fog">No upcoming events yet.</li>
-          )}
-          {upcoming.map((event) => {
-            const day = new Date(`${event.date}T00:00:00`);
-            return (
-              <li key={event._id}>
-                <Card className="flex items-center gap-3 p-3">
-                  <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-nl-green-50 text-nl-green-700">
-                    <span className="text-[0.6rem] font-bold uppercase">
-                      {day.toLocaleDateString("en-CA", { month: "short" })}
-                    </span>
-                    <span className="text-lg font-extrabold leading-none">
-                      {day.getDate()}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold">{event.title}</p>
-                    <p className="truncate text-xs text-nl-fog">
-                      {event.location}
-                    </p>
-                  </div>
-                </Card>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
     </div>
   );
 }
