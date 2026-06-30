@@ -71,9 +71,9 @@ function SectionHeading({ children }: { children: ReactNode }) {
 
 function WeatherStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-lg bg-white/10 px-3 py-3">
-      <span className="font-mono text-sm font-medium text-white">{value}</span>
-      <span className="text-[0.65rem] uppercase tracking-wider text-white/50">
+    <div className="flex flex-col items-center gap-1 rounded-lg bg-white/70 px-3 py-3 ring-1 ring-black/5">
+      <span className="font-mono text-sm font-medium text-nl-ink">{value}</span>
+      <span className="text-[0.65rem] uppercase tracking-wider text-nl-fog">
         {label}
       </span>
     </div>
@@ -126,27 +126,27 @@ export default function Home() {
         <div className="lg:col-span-2">
           <SectionHeading>Current Conditions</SectionHeading>
 
-          <div className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green to-nl-pink-600 shadow-sm">
+          <div className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green-100 via-white to-nl-pink-100 shadow-sm ring-1 ring-black/5">
             <div className="flex flex-col gap-8 p-8 sm:flex-row sm:items-center">
               <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                <p className="text-xs font-semibold uppercase tracking-widest text-nl-green-700">
                   {selected ? selected.region : "Loading…"}
                 </p>
-                <h3 className="mt-1 font-display text-4xl font-extrabold text-white">
+                <h3 className="mt-1 font-display text-4xl font-extrabold text-nl-ink">
                   {selected ? selected.name : "St. John's"}
                 </h3>
                 <div className="mt-3 flex items-end gap-4">
-                  <span className="font-display text-7xl font-extrabold leading-none text-white">
+                  <span className="font-display text-7xl font-extrabold leading-none text-nl-green-900">
                     {selected ? show(selected.temp, "°") : "--°"}
                   </span>
                   <div className="pb-2">
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-lg font-semibold text-nl-pink-700">
                       {selected
                         ? `${CONDITION_ICON[conditionFromLabel(selected.label)]} ${selected.label}`
                         : "Loading…"}
                     </p>
                     {selected && selected.feelsLike !== null && (
-                      <p className="text-sm text-white/60">
+                      <p className="text-sm text-nl-fog">
                         Feels like {selected.feelsLike}°C
                       </p>
                     )}
