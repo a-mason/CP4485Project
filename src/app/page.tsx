@@ -126,7 +126,7 @@ export default function Home() {
         <div className="lg:col-span-2">
           <SectionHeading>Current Conditions</SectionHeading>
 
-          <div className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green to-nl-green-900 shadow-sm">
+          <div className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-nl-green to-nl-pink-600 shadow-sm">
             <div className="flex flex-col gap-8 p-8 sm:flex-row sm:items-center">
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
@@ -140,7 +140,7 @@ export default function Home() {
                     {selected ? show(selected.temp, "°") : "--°"}
                   </span>
                   <div className="pb-2">
-                    <p className="text-lg font-semibold text-nl-pink-100">
+                    <p className="text-lg font-semibold text-white">
                       {selected
                         ? `${CONDITION_ICON[conditionFromLabel(selected.label)]} ${selected.label}`
                         : "Loading…"}
