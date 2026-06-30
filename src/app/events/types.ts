@@ -5,6 +5,7 @@ export type TravelEvent = {
   category: EventCategory;
   location: string;
   date: string;
+  endDate: string;
   startTime: string;
   endTime: string;
   url: string;
