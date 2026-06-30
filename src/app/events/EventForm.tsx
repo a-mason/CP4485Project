@@ -1,4 +1,8 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
 import { EVENT_CATEGORIES } from "./types";
+import { validateEventInput, localTodayString } from "./validateEvent";
 import Field, { fieldInputClass } from "@/components/Field";
 import Button from "@/components/Button";
 
@@ -8,6 +12,7 @@ type EventFormValues = {
   category?: string;
   location?: string;
   date?: string;
+  endDate?: string;
   startTime?: string;
   endTime?: string;
   url?: string;
@@ -31,19 +36,40 @@ export default function EventForm({
   submitLabel,
   error,
 }: EventFormProps) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localTodayString();
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget);
+
+    const validationError = validateEventInput({
+      title: (formData.get("title") as string) ?? "",
+      date: (formData.get("date") as string) ?? "",
+      endDate: (formData.get("endDate") as string) ?? "",
+      startTime: (formData.get("startTime") as string) ?? "",
+      endTime: (formData.get("endTime") as string) ?? "",
+    });
+
+    if (validationError) {
+      e.preventDefault();
+      setClientError(validationError);
+    }
+  }
+
+  const shownError = clientError ? clientError : error;
 
   return (
     <form
       action={action}
       method={typeof action === "string" ? method ?? "POST" : undefined}
+      onSubmit={handleSubmit}
       className="space-y-5"
     >
       {hiddenId && <input type="hidden" name="id" value={hiddenId} />}
 
-      {error && (
+      {shownError && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-          {error}
+          {shownError}
         </p>
       )}
 
@@ -57,7 +83,7 @@ export default function EventForm({
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <Field
-          label="Date"
+          label="Start Date"
           name="date"
           type="date"
           required
@@ -77,6 +103,14 @@ export default function EventForm({
           defaultValue={defaultValues.endTime}
         />
       </div>
+
+      <Field
+        label="End date"
+        name="endDate"
+        type="date"
+        min={today}
+        defaultValue={defaultValues.endDate}
+      />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Category">

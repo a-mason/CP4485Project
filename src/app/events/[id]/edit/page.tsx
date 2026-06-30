@@ -37,11 +37,19 @@ export default async function EditEventPage({
     "use server";
 
     const eventId = formData.get("id") as string;
+    const title = formData.get("title") as string;
     const date = formData.get("date") as string;
+    const endDate = formData.get("endDate") as string;
     const startTime = formData.get("startTime") as string;
     const endTime = formData.get("endTime") as string;
 
-    const validationError = validateEventInput({ date, startTime, endTime });
+    const validationError = validateEventInput({
+      title,
+      date,
+      endDate,
+      startTime,
+      endTime,
+    });
     if (validationError) {
       redirect(`/events/${eventId}/edit?error=${encodeURIComponent(validationError)}`);
     }
@@ -52,11 +60,12 @@ export default async function EditEventPage({
       { _id: new ObjectId(eventId) },
       {
         $set: {
-          title: formData.get("title"),
+          title,
           description: formData.get("description"),
           category: formData.get("category"),
           location: formData.get("location"),
           date,
+          endDate,
           startTime,
           endTime,
           url: formData.get("url"),
@@ -97,6 +106,7 @@ export default async function EditEventPage({
             category: event.category ?? "Music",
             location: event.location ?? "",
             date: event.date ?? "",
+            endDate: event.endDate ?? "",
             startTime: event.startTime ?? "",
             endTime: event.endTime ?? "",
             url: event.url ?? "",
