@@ -6,15 +6,41 @@ import type { ReactNode } from "react";
 import type { TravelEvent } from "./events/types";
 import Card from "@/components/Card";
 
-type Weather = {
+type Condition = "sunny" | "cloudy" | "rainy" | "snowy" | "windy" | "foggy";
+
+type City = {
   name: string;
-  temp: string;
-  condition: string;
-  feelsLike: string;
-  humidity: string;
-  wind: string;
-  visibility: string;
+  region: string;
+  temp: number | null;
+  feelsLike: number | null;
+  label: string;
+  wind: number | null;
+  humidity: number | null;
+  visibility: number | null;
 };
+
+const CONDITION_ICON: Record<Condition, string> = {
+  sunny: "☀️",
+  cloudy: "☁️",
+  rainy: "🌧️",
+  snowy: "❄️",
+  windy: "💨",
+  foggy: "🌫️",
+};
+
+function conditionFromLabel(label: string): Condition {
+  const text = label.toLowerCase();
+  if (text.includes("fog")) return "foggy";
+  if (text.includes("rain") || text.includes("drizzle") || text.includes("shower")) return "rainy";
+  if (text.includes("snow") || text.includes("flurr")) return "snowy";
+  if (text.includes("wind") || text.includes("breez")) return "windy";
+  if (text.includes("sun") || text.includes("clear")) return "sunny";
+  return "cloudy";
+}
+
+function show(value: number | null, suffix: string): string {
+  return value === null ? "--" : `${value}${suffix}`;
+}
 
 function SectionHeading({ children }: { children: ReactNode }) {
   return (
@@ -37,30 +63,14 @@ function WeatherStat({ label, value }: { label: string; value: string }) {
 }
 
 export default function Home() {
-  const [weather, setWeather] = useState<Weather | null>(null);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedName, setSelectedName] = useState("St. John's");
   const [events, setEvents] = useState<TravelEvent[]>([]);
 
   useEffect(() => {
-    fetch("/api/weather")
+    fetch("/api/weather/nearby")
       .then((res) => res.json())
-      .then((data) => {
-        const props = data.properties;
-        const cc = props.currentConditions;
-        const feelsLike = cc.humidex
-          ? cc.humidex.value.en
-          : cc.windChill
-          ? cc.windChill.value.en
-          : cc.temperature.value.en;
-        setWeather({
-          name: props.name.en,
-          temp: cc.temperature.value.en,
-          condition: cc.condition.en,
-          feelsLike,
-          humidity: cc.relativeHumidity.value.en,
-          wind: cc.wind.speed.value.en,
-          visibility: cc.visibility ? cc.visibility.value.en : "",
-        });
-      })
+      .then((data: City[]) => setCities(data))
       .catch((err) => console.error("Failed to load weather:", err));
 
     fetch("/api/events")
@@ -68,6 +78,9 @@ export default function Home() {
       .then((data: TravelEvent[]) => setEvents(data))
       .catch((err) => console.error("Failed to load events:", err));
   }, []);
+
+  const selected =
+    cities.find((city) => city.name === selectedName) ?? cities[0] ?? null;
 
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = events
@@ -85,19 +98,24 @@ export default function Home() {
             <div className="flex flex-col gap-8 p-8 sm:flex-row sm:items-center">
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
-                  {weather ? weather.name : "St. John's"}
+                  {selected ? selected.region : "Loading…"}
                 </p>
+                <h3 className="mt-1 font-display text-4xl font-extrabold text-white">
+                  {selected ? selected.name : "St. John's"}
+                </h3>
                 <div className="mt-3 flex items-end gap-4">
                   <span className="font-display text-7xl font-extrabold leading-none text-white">
-                    {weather ? Math.round(parseFloat(weather.temp)) : "--"}°
+                    {selected ? show(selected.temp, "°") : "--°"}
                   </span>
                   <div className="pb-2">
                     <p className="text-lg font-semibold text-nl-pink-100">
-                      {weather ? weather.condition : "Loading…"}
+                      {selected
+                        ? `${CONDITION_ICON[conditionFromLabel(selected.label)]} ${selected.label}`
+                        : "Loading…"}
                     </p>
-                    {weather && (
+                    {selected && selected.feelsLike !== null && (
                       <p className="text-sm text-white/60">
-                        Feels like {Math.round(parseFloat(weather.feelsLike))}°C
+                        Feels like {selected.feelsLike}°C
                       </p>
                     )}
                   </div>
@@ -107,30 +125,75 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-3">
                 <WeatherStat
                   label="Wind"
-                  value={
-                    weather ? `${Math.round(parseFloat(weather.wind))} km/h` : "--"
-                  }
+                  value={selected ? show(selected.wind, " km/h") : "--"}
                 />
                 <WeatherStat
                   label="Humidity"
-                  value={weather ? `${weather.humidity}%` : "--"}
+                  value={selected ? show(selected.humidity, "%") : "--"}
                 />
                 <WeatherStat
                   label="Vis."
-                  value={
-                    weather && weather.visibility
-                      ? `${weather.visibility} km`
-                      : "--"
-                  }
+                  value={selected ? show(selected.visibility, " km") : "--"}
                 />
               </div>
             </div>
             <div className="tricolour-bar h-1.5 w-full" />
           </div>
 
+          <p className="mt-5 text-xs text-nl-fog">
+            Nearby spots — pick one to see its conditions.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {cities.map((city) => {
+              const active = city.name === selectedName;
+              return (
+                <button
+                  key={city.name}
+                  type="button"
+                  onClick={() => setSelectedName(city.name)}
+                  className={`rounded-xl border-2 p-4 text-left transition-colors ${
+                    active
+                      ? "border-nl-green bg-nl-green text-white"
+                      : "border-black/10 bg-white text-nl-ink hover:border-nl-green/40"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-[15px] font-bold leading-tight">
+                        {city.name}
+                      </p>
+                      <p
+                        className={`mt-0.5 truncate text-xs ${
+                          active ? "text-white/70" : "text-nl-fog"
+                        }`}
+                      >
+                        {city.region}
+                      </p>
+                    </div>
+                    <span className="text-base">
+                      {CONDITION_ICON[conditionFromLabel(city.label)]}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-end justify-between gap-2">
+                    <span className="font-display text-3xl font-extrabold">
+                      {show(city.temp, "°")}
+                    </span>
+                    <span
+                      className={`truncate pb-1 text-xs ${
+                        active ? "text-white/70" : "text-nl-fog"
+                      }`}
+                    >
+                      {city.label}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
           <Link
             href="/weather"
-            className="mt-5 inline-block text-sm font-bold text-nl-green-700 hover:underline"
+            className="mt-6 inline-block text-sm font-bold text-nl-green-700 hover:underline"
           >
             Full weather →
           </Link>
