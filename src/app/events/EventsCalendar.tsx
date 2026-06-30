@@ -57,14 +57,17 @@ export default function EventsCalendar() {
 
   const fcEvents = useMemo<EventInput[]>(
     () =>
-      events.map((e) => ({
-        id: e._id,
-        title: e.title,
-        start: e.startTime ? `${e.date}T${e.startTime}` : e.date,
-        end: e.endTime ? `${e.date}T${e.endTime}` : undefined,
-        allDay: !e.startTime,
-        extendedProps: e,
-      })),
+      events.map((e) => {
+        const endDay = e.endDate ? e.endDate : e.date;
+        return {
+          id: e._id,
+          title: e.title,
+          start: e.startTime ? `${e.date}T${e.startTime}` : e.date,
+          end: e.endTime ? `${endDay}T${e.endTime}` : undefined,
+          allDay: !e.startTime,
+          extendedProps: e,
+        };
+      }),
     [events]
   );
 
