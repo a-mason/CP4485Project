@@ -81,7 +81,7 @@ export default function EventForm({
         placeholder="George Street Festival"
       />
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
           label="Start Date"
           name="date"
@@ -90,6 +90,16 @@ export default function EventForm({
           min={today}
           defaultValue={defaultValues.date}
         />
+        <Field
+          label="End date"
+          name="endDate"
+          type="date"
+          min={today}
+          defaultValue={defaultValues.endDate}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
           label="Start time"
           name="startTime"
@@ -103,14 +113,6 @@ export default function EventForm({
           defaultValue={defaultValues.endTime}
         />
       </div>
-
-      <Field
-        label="End date"
-        name="endDate"
-        type="date"
-        min={today}
-        defaultValue={defaultValues.endDate}
-      />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Category">
