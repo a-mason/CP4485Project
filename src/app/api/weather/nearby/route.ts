@@ -1,10 +1,5 @@
 const SITES = [
   { id: "nl-24", name: "St. John's" },
-  { id: "nl-43", name: "Bay Roberts" },
-  { id: "nl-30", name: "Placentia" },
-  { id: "nl-28", name: "Cape Race" },
-  { id: "nl-1", name: "Clarenville" },
-  { id: "nl-15", name: "Terra Nova" },
 ];
 
 function toNumber(value: unknown): number | null {
