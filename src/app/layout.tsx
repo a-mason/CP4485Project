@@ -3,6 +3,7 @@ import { Geist, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SplashScreen from "@/components/SplashScreen";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-nl-cream text-nl-ink">
+        <SplashScreen />
         <Navbar />
         <main className="flex-1 w-full">{children}</main>
         <Footer />

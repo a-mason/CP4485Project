@@ -24,7 +24,7 @@ export default function Navbar() {
             <span className="h-full w-1/3 bg-white" />
             <span className="h-full w-1/3 bg-nl-pink" />
           </span>
-          St. John&apos;s
+          Travel Advisory
         </Link>
 
         <ul className="hidden gap-6 md:flex">
