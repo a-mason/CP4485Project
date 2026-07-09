@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 
 export default function SplashScreen() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("splashShown")) {
-      return;
-    }
+    const seen = sessionStorage.getItem("splashShown");
     sessionStorage.setItem("splashShown", "1");
-    setVisible(true);
 
-    const fadeTimer = setTimeout(() => setHidden(true), 2000);
-    const removeTimer = setTimeout(() => setVisible(false), 2500);
+    const fadeAt = seen ? 600 : 2000;
+    const removeAt = seen ? 1000 : 2500;
+
+    const fadeTimer = setTimeout(() => setHidden(true), fadeAt);
+    const removeTimer = setTimeout(() => setVisible(false), removeAt);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
