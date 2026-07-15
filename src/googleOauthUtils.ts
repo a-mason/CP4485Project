@@ -1,4 +1,6 @@
 import { google } from "googleapis";
+import { ObjectId } from "mongodb";
+import { connectToDB } from "./app/api/db";
 
 const oauthClient = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -38,4 +40,26 @@ export async function getGoogleUser(code: string): Promise<GoogleUser> {
   const userInfo = (await response.json()) as GoogleUser;
 
   return userInfo;
+}
+
+export interface AppUser {
+  _id: ObjectId;
+  id: string;
+  email: string;
+  name?: string;
+}
+
+export async function updateOrCreateUserInfo(
+  oauthUserInfo: GoogleUser
+): Promise<AppUser> {
+  const { db } = await connectToDB();
+  const { id, email, name } = oauthUserInfo;
+
+  const existing = await db.collection("users").findOne({ email });
+  if (existing) {
+    return existing as unknown as AppUser;
+  }
+
+  const result = await db.collection("users").insertOne({ id, email, name });
+  return { _id: result.insertedId, id, email, name };
 }
