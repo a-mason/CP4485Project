@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import TricolourBar from "@/components/TricolourBar";
+import { logout } from "@/app/auth/actions";
 
 const links = [
   { href: "/", label: "Home" },
@@ -10,7 +11,7 @@ const links = [
   { href: "/events", label: "Events" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -38,6 +39,25 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          <li>
+            {isLoggedIn ? (
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="font-semibold text-nl-ink/70 transition-colors hover:text-nl-green-700"
+                >
+                  Logout
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                className="font-semibold text-nl-ink/70 transition-colors hover:text-nl-green-700"
+              >
+                Login
+              </Link>
+            )}
+          </li>
         </ul>
 
         <button
@@ -63,6 +83,27 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          <li>
+            {isLoggedIn ? (
+              <form action={logout}>
+                <button
+                  type="submit"
+                  onClick={() => setOpen(false)}
+                  className="block w-full rounded-lg px-3 py-2 text-left font-semibold text-nl-ink/80 hover:bg-black/5"
+                >
+                  Logout
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 font-semibold text-nl-ink/80 hover:bg-black/5"
+              >
+                Login
+              </Link>
+            )}
+          </li>
         </ul>
       )}
     </header>

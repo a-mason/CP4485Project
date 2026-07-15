@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SplashScreen from "@/components/SplashScreen";
+import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,11 +23,12 @@ export const metadata: Metadata = {
     "Your local travel advisory platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isLoggedIn = !!(await cookies()).get("session");
   return (
     <html
       lang="en"
@@ -34,7 +36,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-nl-cream text-nl-ink">
         <SplashScreen />
-        <Navbar />
+        <Navbar isLoggedIn={isLoggedIn}/>
         <main className="flex-1 w-full">{children}</main>
         <Footer />
       </body>
