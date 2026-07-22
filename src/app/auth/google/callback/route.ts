@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
   const jwt = await new SignJWT({
     userId: user._id.toString(),
     email: user.email,
+    name: user.name,
+    picture: user.picture,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("1h")

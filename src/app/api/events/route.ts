@@ -1,6 +1,9 @@
 import { connectToDB } from "@/app/api/db";
 import { revalidatePath } from "next/cache";
 import { validateEventInput } from "@/app/events/validateEvent";
+import { cookies } from "next/headers";
+import { jwtVerify, type JWTPayload } from "jose";
+import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +37,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session");
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+  let payload: JWTPayload;
+  try {
+    ({ payload } = await jwtVerify(session!.value, secret));
+  } catch {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const formData = await request.formData();
 
   const title = formData.get("title") as string;
@@ -73,6 +86,7 @@ export async function POST(request: Request) {
     endTime,
     url: formData.get("url"),
     submittedBy: formData.get("submittedBy"),
+    userId: new ObjectId(payload.userId as string),
     createdAt: new Date(),
   });
 

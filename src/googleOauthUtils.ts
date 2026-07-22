@@ -47,19 +47,26 @@ export interface AppUser {
   id: string;
   email: string;
   name?: string;
+  picture?: string;
 }
 
 export async function updateOrCreateUserInfo(
   oauthUserInfo: GoogleUser
 ): Promise<AppUser> {
   const { db } = await connectToDB();
-  const { id, email, name } = oauthUserInfo;
+  const { id, email, name, picture } = oauthUserInfo;
 
   const existing = await db.collection("users").findOne({ email });
   if (existing) {
-    return existing as unknown as AppUser;
+    // Keep the stored name and profile picture fresh on each login.
+    await db
+      .collection("users")
+      .updateOne({ email }, { $set: { name, picture } });
+    return { ...(existing as unknown as AppUser), name, picture };
   }
 
-  const result = await db.collection("users").insertOne({ id, email, name });
-  return { _id: result.insertedId, id, email, name };
+  const result = await db
+    .collection("users")
+    .insertOne({ id, email, name, picture });
+  return { _id: result.insertedId, id, email, name, picture };
 }
