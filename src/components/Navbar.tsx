@@ -11,7 +11,13 @@ const links = [
   { href: "/events", label: "Events" },
 ];
 
-export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
+type SessionUser = {
+  name?: string;
+  email?: string;
+  picture?: string;
+};
+
+export default function Navbar({ user }: { user: SessionUser | null }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -39,16 +45,31 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               </Link>
             </li>
           ))}
-          <li>
-            {isLoggedIn ? (
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="font-semibold text-nl-ink/70 transition-colors hover:text-nl-green-700"
-                >
-                  Logout
-                </button>
-              </form>
+          <li className="flex items-center gap-3">
+            {user ? (
+              <>
+                {user.picture ? (
+                  <img
+                    src={user.picture}
+                    alt={user.name ? user.name : "Profile"}
+                    referrerPolicy="no-referrer"
+                    className="h-8 w-8 rounded-full object-cover ring-1 ring-black/10"
+                  />
+                ) : null}
+                {user.name ? (
+                  <span className="font-semibold text-nl-ink/80">
+                    {user.name}
+                  </span>
+                ) : null}
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="font-semibold text-nl-ink/70 transition-colors hover:text-nl-green-700"
+                  >
+                    Logout
+                  </button>
+                </form>
+              </>
             ) : (
               <Link
                 href="/login"
@@ -84,16 +105,32 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
             </li>
           ))}
           <li>
-            {isLoggedIn ? (
-              <form action={logout}>
-                <button
-                  type="submit"
-                  onClick={() => setOpen(false)}
-                  className="block w-full rounded-lg px-3 py-2 text-left font-semibold text-nl-ink/80 hover:bg-black/5"
-                >
-                  Logout
-                </button>
-              </form>
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 px-3 py-2">
+                  {user.picture ? (
+                    <img
+                      src={user.picture}
+                      alt={user.name ? user.name : "Profile"}
+                      referrerPolicy="no-referrer"
+                      className="h-8 w-8 rounded-full object-cover ring-1 ring-black/10"
+                    />
+                  ) : null}
+                  {user.name ? (
+                    <span className="font-semibold text-nl-ink/80">
+                      {user.name}
+                    </span>
+                  ) : null}
+                </div>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="block w-full rounded-lg px-3 py-2 text-left font-semibold text-nl-ink/80 hover:bg-black/5"
+                  >
+                    Logout
+                  </button>
+                </form>
+              </>
             ) : (
               <Link
                 href="/login"
