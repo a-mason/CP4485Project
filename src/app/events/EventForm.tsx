@@ -16,7 +16,6 @@ type EventFormValues = {
   startTime?: string;
   endTime?: string;
   url?: string;
-  submittedBy?: string;
 };
 
 type EventFormProps = {
@@ -152,20 +151,13 @@ export default function EventForm({
         />
       </Field>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Field
-          label="Link (optional)"
-          name="url"
-          type="url"
-          defaultValue={defaultValues.url}
-          placeholder="https://..."
-        />
-        <Field
-          label="Your name (optional)"
-          name="submittedBy"
-          defaultValue={defaultValues.submittedBy}
-        />
-      </div>
+      <Field
+        label="Link (optional)"
+        name="url"
+        type="url"
+        defaultValue={defaultValues.url}
+        placeholder="https://..."
+      />
 
       <Button type="submit" fullWidth>
         {submitLabel}

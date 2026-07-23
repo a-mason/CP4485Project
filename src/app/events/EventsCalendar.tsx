@@ -33,12 +33,17 @@ function prettyTime(t: string): string {
   return `${hour}:${String(m).padStart(2, "0")}${period}`;
 }
 
-export default function EventsCalendar() {
+export default function EventsCalendar({
+  currentUserId,
+}: {
+  currentUserId: string | null;
+}) {
   const [events, setEvents] = useState<TravelEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<TravelEvent | null>(null);
   const [mounted, setMounted] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -73,6 +78,7 @@ export default function EventsCalendar() {
 
   function handleEventClick(info: EventClickArg) {
     info.jsEvent.preventDefault();
+    setDeleteError(null);
     setSelected(info.event.extendedProps as TravelEvent);
   }
 
@@ -81,15 +87,23 @@ export default function EventsCalendar() {
     if (!confirm(`Delete "${selected.title}"?`)) return;
 
     setDeleting(true);
+    setDeleteError(null);
     try {
       const res = await fetch(`/api/events/${selected._id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete event");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        const message =
+          data && data.error ? data.error : "Failed to delete event";
+        throw new Error(message);
+      }
       setSelected(null);
       loadEvents();
     } catch (err) {
-      console.error("Failed to delete event:", err);
+      setDeleteError(
+        err instanceof Error ? err.message : "Failed to delete event"
+      );
     } finally {
       setDeleting(false);
     }
@@ -178,12 +192,25 @@ export default function EventsCalendar() {
               </p>
             )}
 
-            <div className="mt-4 flex gap-2">
-              <Button href={`/events/${selected._id}/edit`}>Edit</Button>
-              <Button variant="danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? "Deleting…" : "Delete"}
-              </Button>
-            </div>
+            {currentUserId && selected.userId === currentUserId && (
+              <>
+                <div className="mt-4 flex gap-2">
+                  <Button href={`/events/${selected._id}/edit`}>Edit</Button>
+                  <Button
+                    variant="danger"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                  >
+                    {deleting ? "Deleting…" : "Delete"}
+                  </Button>
+                </div>
+                {deleteError && (
+                  <p className="mt-2 text-xs font-medium text-red-600">
+                    {deleteError}
+                  </p>
+                )}
+              </>
+            )}
           </Card>
         )}
       </aside>

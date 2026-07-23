@@ -29,6 +29,7 @@ export async function GET() {
       endTime: event.endTime ? event.endTime : "",
       url: event.url ? event.url : "",
       submittedBy: event.submittedBy ? event.submittedBy : "",
+      userId: event.userId ? event.userId.toString() : "",
       createdAt: event.createdAt,
     };
   });
@@ -39,11 +40,14 @@ export async function GET() {
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const session = cookieStore.get("session");
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
   let payload: JWTPayload;
   try {
-    ({ payload } = await jwtVerify(session!.value, secret));
+    ({ payload } = await jwtVerify(session.value, secret));
   } catch {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -73,6 +77,11 @@ export async function POST(request: Request) {
     );
   }
 
+  // Attribution comes from the signed-in user, not a free-text field, so it
+  // can't be spoofed to look like it was added by someone else.
+  const submittedBy =
+    (payload.name as string) || (payload.email as string) || "";
+
   const { db } = await connectToDB();
 
   await db.collection("events").insertOne({
@@ -85,7 +94,7 @@ export async function POST(request: Request) {
     startTime,
     endTime,
     url: formData.get("url"),
-    submittedBy: formData.get("submittedBy"),
+    submittedBy,
     userId: new ObjectId(payload.userId as string),
     createdAt: new Date(),
   });

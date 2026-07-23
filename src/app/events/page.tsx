@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
 import EventsCalendar from "./EventsCalendar";
 import Button from "@/components/Button";
 
@@ -6,7 +8,21 @@ export const metadata = {
   description: "Upcoming events around St. John's, month by month.",
 };
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  // Work out who is signed in so we can show the Add button only to them and
+  // let the calendar show Edit/Delete only on events they own.
+  const session = (await cookies()).get("session");
+  let currentUserId: string | null = null;
+  if (session) {
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const { payload } = await jwtVerify(session.value, secret);
+      currentUserId = payload.userId as string;
+    } catch {
+      currentUserId = null;
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -14,11 +30,15 @@ export default function EventsPage() {
           <span className="text-tricolour">Event Calendar</span>
         </h1>
 
-        <Button href="/events/add">+ Add event</Button>
+        {currentUserId ? (
+          <Button href="/events/add">+ Add event</Button>
+        ) : (
+          <Button href="/login">Log in to add events</Button>
+        )}
       </div>
 
       <div className="mt-10">
-        <EventsCalendar />
+        <EventsCalendar currentUserId={currentUserId} />
       </div>
     </div>
   );
