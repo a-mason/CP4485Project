@@ -1,7 +1,7 @@
 import { connectToDB } from "@/app/api/db";
 import { ObjectId } from "mongodb";
 import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
+import { jwtVerify, type JWTPayload } from "jose";
 
 export async function DELETE(
   _request: Request,
@@ -9,10 +9,14 @@ export async function DELETE(
 ) {
   const cookieStore = await cookies();
   const session = cookieStore.get("session");
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
+  let payload: JWTPayload;
   try {
-    await jwtVerify(session!.value, secret);
+    ({ payload } = await jwtVerify(session.value, secret));
   } catch {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -23,13 +27,21 @@ export async function DELETE(
   }
 
   const { db } = await connectToDB();
-  const result = await db
-    .collection("events")
-    .deleteOne({ _id: new ObjectId(id) });
+  const event = await db.collection("events").findOne({ _id: new ObjectId(id) });
 
-  if (result.deletedCount === 0) {
+  if (!event) {
     return Response.json({ error: "Event not found" }, { status: 404 });
   }
+
+  // Only the user who created the event may delete it.
+  if (!event.userId || event.userId.toString() !== (payload.userId as string)) {
+    return Response.json(
+      { error: "You can only delete your own events" },
+      { status: 403 }
+    );
+  }
+
+  await db.collection("events").deleteOne({ _id: new ObjectId(id) });
 
   return Response.json({ ok: true });
 }

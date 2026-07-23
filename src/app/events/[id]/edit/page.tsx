@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { jwtVerify, type JWTPayload } from "jose";
 import { ObjectId } from "mongodb";
 import { connectToDB } from "@/app/api/db";
 import { validateEventInput } from "../../validateEvent";
@@ -26,6 +28,21 @@ export default async function EditEventPage({
     notFound();
   }
 
+  // Figure out who is signed in. The proxy already blocks logged-out users, but
+  // we still need the user id so we can confirm they own this event.
+  const session = (await cookies()).get("session");
+  if (!session) {
+    redirect("/login");
+  }
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  let currentUserId: string;
+  try {
+    const { payload } = await jwtVerify(session.value, secret);
+    currentUserId = payload.userId as string;
+  } catch {
+    redirect("/login");
+  }
+
   const { db } = await connectToDB();
   const event = await db.collection("events").findOne({ _id: new ObjectId(id) });
 
@@ -33,8 +50,26 @@ export default async function EditEventPage({
     notFound();
   }
 
+  // Don't let a signed-in user open the edit form for someone else's event.
+  if (!event.userId || event.userId.toString() !== currentUserId) {
+    redirect("/events");
+  }
+
   async function updateEvent(formData: FormData) {
     "use server";
+
+    // Re-check auth inside the action too, so it never relies on the proxy alone.
+    const session = (await cookies()).get("session");
+    if (!session) {
+      redirect("/login");
+    }
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    let payload: JWTPayload;
+    try {
+      ({ payload } = await jwtVerify(session.value, secret));
+    } catch {
+      redirect("/login");
+    }
 
     const eventId = formData.get("id") as string;
     const title = formData.get("title") as string;
@@ -60,8 +95,12 @@ export default async function EditEventPage({
 
     const { db } = await connectToDB();
 
+    // Scope the update by userId so a user can only edit their own event.
     await db.collection("events").updateOne(
-      { _id: new ObjectId(eventId) },
+      {
+        _id: new ObjectId(eventId),
+        userId: new ObjectId(payload.userId as string),
+      },
       {
         $set: {
           title,
@@ -73,7 +112,6 @@ export default async function EditEventPage({
           startTime,
           endTime,
           url: formData.get("url"),
-          submittedBy: formData.get("submittedBy"),
         },
       }
     );
@@ -114,7 +152,6 @@ export default async function EditEventPage({
             startTime: event.startTime ?? "",
             endTime: event.endTime ?? "",
             url: event.url ?? "",
-            submittedBy: event.submittedBy ?? "",
           }}
         />
       </Card>

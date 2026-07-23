@@ -10,6 +10,7 @@ export type TravelEvent = {
   endTime: string;
   url: string;
   submittedBy: string;
+  userId: string;
   createdAt: string;
 };
 
