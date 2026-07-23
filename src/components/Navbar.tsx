@@ -125,7 +125,6 @@ export default function Navbar({ user }: { user: SessionUser | null }) {
                 <form action={logout}>
                   <button
                     type="submit"
-                    onClick={() => setOpen(false)}
                     className="block w-full rounded-lg px-3 py-2 text-left font-semibold text-nl-ink/80 hover:bg-black/5"
                   >
                     Logout
